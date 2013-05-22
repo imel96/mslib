@@ -1,7 +1,9 @@
 <?php
 
 /*
- * $Id$
+ * application/hal+json is perfect for paginated data because it describes
+ * from what page a set of data coming from and separates embedded data from
+ * meta data.
  */
 
 namespace Gji\Paginator;

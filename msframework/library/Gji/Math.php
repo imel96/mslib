@@ -1,22 +1,25 @@
 <?php
 
 /*
- * $Id$
+ * copied from  http://svn.corp.local/svn/mms/trunk/library/Gji/Math.php
  */
 
 namespace Gji;
-
-require_once('Gji/Sort.php');
-
 use Gji\Sort;
 
 class Math {
 
+	/*
+	 * apply mapper to an array and sum the values of the resulting array
+	 */
 	static function mapAndSum($data, $mapper)
 	{
 		return array_sum(array_map($mapper, $data));
 	}
 
+	/*
+	 * sort n+1 of $data using $key and return the median
+	 */
 	static function median($data, $key)
 	{
 		$n = count ($data);

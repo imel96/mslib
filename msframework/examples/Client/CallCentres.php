@@ -1,9 +1,7 @@
 <?php
 
-namespace Gji\Client;
-
 use Zend\Json\Json;
-use Gji\RestClient;
+use Gji\Http\RestClient;
 
 class CallCentres extends RestClient {
 

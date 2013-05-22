@@ -1,7 +1,7 @@
 <?php
 
 /*
- * $Id$
+ * copied from  http://svn.corp.local/svn/mms/trunk/library/Gji/Sort.php
  */
 
 namespace Gji;
@@ -9,7 +9,8 @@ namespace Gji;
 class Sort {
 
 	/*
-	 * this is basically a selection sort implementation
+	 * this is basically a selection sort implementation where it
+	 * only sort $top number of element (faster).
 	 */
 	static function findTop($top, $data, $key)
 	{

@@ -1,6 +1,6 @@
 <?php
 
-namespace Gji;
+namespace Gji\Http;
 
 use Zend\Http\Client;
 use Zend\Http\Request;

@@ -7,7 +7,7 @@ use Zend\Authentication\Result;
 use Zend\Json\Json;
 use Zend\Http\Response;
 use Zend\Debug\Debug;
-use Gji\RestClient;
+use Gji\Http\RestClient;
 
 class RestAdapter extends RestClient implements Adapter\AdapterInterface {
 	protected $username;
