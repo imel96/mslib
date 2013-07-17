@@ -15,6 +15,7 @@ class Sort {
 	static function findTop($top, $data, $key)
 	{
 		$n = count ($data);
+		$keys = array_keys($data);
 
 		for ($i = 0; $i < $top; $i++) {
 			$max = null;
@@ -22,12 +23,12 @@ class Sort {
 
 			for ($j = $i; $j < $n; $j++)
 
-				if (!$max || $data[$j][$key] > $max[$key]) {
+				if (!$max || $data[$keys[$j]][$key] > $max[$key]) {
 					$maxKey = $j;
-					$max = $data[$j];
+					$max = $data[$keys[$j]];
 				}
-			$data[$maxKey] = $data[$i];
-			$data[$i] = $max;
+			$data[$keys[$maxKey]] = $data[$keys[$i]];
+			$data[$keys[$i]] = $max;
 		}
 		return array_slice($data, 0, $top);
 	}
