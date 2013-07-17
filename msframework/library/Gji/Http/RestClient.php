@@ -8,18 +8,35 @@ use Zend\Http\Request;
 class RestClient extends Client {
 	protected $xconfig;
 	protected $acceptHeader;
+	protected $rangeHeader;
+	protected $headers;
 	protected $resource;
 	protected $signingKey;
 
 	public function setConfig($xconfig)
 	{
 		$this->xconfig = $xconfig;
+		$this->setOptions($this->xconfig);
+		return $this;
+	}
+
+	public function setHeader($name, $value)
+	{
+		if (!$this->headers)
+			$this->headers = $this->getRequest()->getHeaders();
+		$this->headers->addHeaderLine($name, $value);
 		return $this;
 	}
 
 	public function setAcceptHeader($type)
 	{
-		$this->acceptHeader = $type;
+		$this->setHeader('Accept', $type);
+		return $this;
+	}
+
+	public function setRangeHeader($range)
+	{
+		$this->setHeader('Range', $range);
 		return $this;
 	}
 
