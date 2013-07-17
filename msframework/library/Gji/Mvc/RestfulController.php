@@ -33,24 +33,44 @@ class RestfulController extends AbstractRestfulController {
         return $this->notImplemented();
     }
 
-	protected function basicResponse($code)
+	public function forward($request, $method, $client)
 	{
-		$response = $this->getResponse();
-		$response->setStatusCode($code);
-		return $response;
+		$sHeaders = $request->getHeaders();
+		$dHeaders = $this->response->getHeaders();
+		foreach ($sHeaders as $header)
+			if (!$header instanceOf \Zend\Http\Header\Host)
+				$dHeaders->addHeader($header);
+		$client->setHeaders($dHeaders);
+		$result = $client->sendWithMethod($method);
+		$this->response->setContent($result->getBody())
+			->setHeaders($result->getHeaders())
+			->setStatusCode($result->getStatusCode());
+		return $this->response;
+	}
+
+	protected function basicResponse($code, $message = null)
+	{
+		$this->response->setStatusCode($code);
+		if ($message)
+			$this->response->setContent($message);
+		return $this->response;
+	}
+
+	protected function okResponse()
+	{
+		return $this->basicResponse(Response::STATUS_CODE_200);
 	}
 
 	protected function createdResponse($id)
 	{
 		$location = $this->getRequest()->getUriString() . "/$id";
-		$response = $this->getResponse();
-		$response->setStatusCode(Response::STATUS_CODE_201);
-		$response->getHeaders()
+		$this->response->setStatusCode(Response::STATUS_CODE_201);
+		$this->response->getHeaders()
 			->addHeaderLine("Content-Type: application/json")
 			->addHeaderLine("Location: $location");
-		$response->setContent(Json::encode(array('id' => $id,
+		$this->response->setContent(Json::encode(array('id' => $id,
 			'location' => $location)));
-		return $response;
+		return $this->response;
 	}
 
 	protected function acceptedResponse()
@@ -68,9 +88,10 @@ class RestfulController extends AbstractRestfulController {
 		return $this->basicResponse(Response::STATUS_CODE_205);
 	}
 
-	protected function badRequestResponse()
+	protected function badRequestResponse($message = null)
 	{
-		return $this->basicResponse(Response::STATUS_CODE_400);
+		return $this->basicResponse(Response::STATUS_CODE_400,
+			$message);
 	}
 
 	protected function unauthorizedResponse()
@@ -90,11 +111,10 @@ class RestfulController extends AbstractRestfulController {
 
 	protected function methodNotAllowedResponse($methods)
 	{
-		$response = $this->getResponse();
-		$response->setStatusCode(Response::STATUS_CODE_405);
-		$response->getHeaders()
-			->addHeaderLine('Access-Control-Allow-Methods', $methods);
-		return $response;
+		$this->response->setStatusCode(Response::STATUS_CODE_405)
+			->getHeaders()
+			->addHeaderLine('Allow', $methods);
+		return $this->response;
 	}
 
 	protected function conflictResponse()
@@ -105,6 +125,12 @@ class RestfulController extends AbstractRestfulController {
 	protected function goneResponse()
 	{
 		return $this->basicResponse(Response::STATUS_CODE_410);
+	}
+
+	protected function preconditionFailedResponse($message = null)
+	{
+		return $this->basicResponse(Response::STATUS_CODE_412,
+			$message);
 	}
 
 	protected function internalServerErrorResponse()
