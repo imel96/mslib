@@ -11,6 +11,8 @@ class Math {
 
 	/*
 	 * apply mapper to an array and sum the values of the resulting array
+	 * $mapper callback function that must return a number
+	 * $data array of inputs to $mapper
 	 */
 	static function mapAndSum($data, $mapper)
 	{
@@ -19,6 +21,8 @@ class Math {
 
 	/*
 	 * sort n+1 of $data using $key and return the median
+	 * $data array of array
+	 * $key to be used with inner array
 	 */
 	static function median($data, $key)
 	{

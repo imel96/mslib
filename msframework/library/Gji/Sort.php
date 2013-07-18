@@ -11,6 +11,8 @@ class Sort {
 	/*
 	 * this is basically a selection sort implementation where it
 	 * only sort $top number of element (faster).
+	 * $data array of array
+	 * $key to be used with inner array
 	 */
 	static function findTop($top, $data, $key)
 	{
