@@ -88,6 +88,14 @@ class RestfulController extends AbstractRestfulController {
 		return $this->basicResponse(Response::STATUS_CODE_205);
 	}
 
+	protected function foundResponse($uri)
+	{
+		$this->response->setStatusCode(Response::STATUS_CODE_302);
+		$this->response->getHeaders()
+			->addHeaderLine("Location: $uri");
+		return $this->response;
+	}
+
 	protected function badRequestResponse($message = null)
 	{
 		return $this->basicResponse(Response::STATUS_CODE_400,
