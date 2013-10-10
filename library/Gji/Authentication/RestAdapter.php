@@ -7,34 +7,41 @@ use Zend\Authentication\Result;
 use Zend\Json\Json;
 use Zend\Http\Response;
 use Zend\Debug\Debug;
-use Gji\Http\RestClient;
+use Gji\Http;
 
-class RestAdapter extends RestClient implements Adapter\AdapterInterface {
-	protected $username;
-	protected $password;
+class RestAdapter extends Adapter\AbstractAdapter {
 	protected $key;
+	protected $restClient;
+	protected $resource;
+
+	function __construct()
+	{
+		$this->restClient = new Http\RestClient;
+	}
 
 	public function authenticate()
 	{
 		if (!$this->resource)
 			throw new \Exception('$this->resource is not set');
-		$this->setParameterGet(array(
-			'AppKey' => $this->key,
-			'Username' => $this->username,
-			'Password' => $this->password));
-		$rsp = $this->sendGet();
+		$this->restClient->setParameterPost(array(
+			'Username' => $this->identity,
+			'Password' => $this->credential));
+		$rsp = $this->restClient->sendPost();
+/*
+Debug::dump($rsp->getStatusCode());
+Debug::dump($rsp->getBody());exit;
+*/
 
 		switch ($rsp->getStatusCode()) {
 		case Response::STATUS_CODE_200:
 			$response = Json::decode($rsp->getBody());
-			$this->setResource("user/" .
-				$response->Result->User->id);
+			$this->restClient->setResource('users/' .
+				$response->User->id);
 			$params = array(
-				'AppKey' => $this->key,
-				'AuthKey' => $response->Result->User->strAuthKey,
-				'CustomerNumber' => $response->Result->User->customers[0]->fk_Customer->strCustomerNumber);
-			$this->setParameterGet($params);
-			$rsp = $this->sendGet();
+				'AuthKey' => $response->User->strAuthKey,
+				'CustomerNumber' => $response->User->customers[0]->fk_Customer->strCustomerNumber);
+			$this->restClient->setParameterGet($params);
+			$rsp = $this->restClient->sendGet();
 			$response = Json::decode($rsp->getBody());
 			$identity = array(
 				'loggedIn' => true,
@@ -42,42 +49,55 @@ class RestAdapter extends RestClient implements Adapter\AdapterInterface {
 				'name' => $response->username,
 				'fullname' => ucwords("$response->firstname $response->lastname"),
 				'userId' => $response->id,
-				'customerNumber' => $response->customers[0]->customer_number,
+				'customerId' => $response->customers[0]->id,
 				'customerName' => $response->customers[0]->name,
-				'roleId' => $response->role->id);
+				'roleId' => $response->role->id,
+				'static_profile' => $response->static_profile,
+				'active_profile' => $response->active_profile,
+				);
 			$code = Result::SUCCESS;
 			$message = array();
 			break;
 		case Response::STATUS_CODE_401:
 			$code = Result::FAILURE_CREDENTIAL_INVALID;
-			$identity = $this->username;
+			$identity = $this->identity;
+			$message = array('Wrong email address or password.');
+			break;
+		case Response::STATUS_CODE_403:
+		case Response::STATUS_CODE_429:
+			$code = Result::FAILURE_UNCATEGORIZED;
+			$identity = $this->identity;
 			$message = array('Wrong email address or password.');
 			break;
 		case Response::STATUS_CODE_500:
 		default:
 			$code = Result::FAILURE_UNCATEGORIZED;
-			$identity = $this->username;
-                        $message = array('An unknown error occurred.');
+			$identity = $this->identity;
+			if (!$this->identity)
+				$message = array('Please enter a login email.');
+			else
+				$message = array('An unknown error occurred.');
 			break;
 		}
 		return new Result($code, $identity, $message);
 	}
 
-	public function setUsername($username)
-	{
-		$this->username = $username;
-		return $this;
-	}
-
-	public function setPassword($password)
-	{
-		$this->password = $password;
-		return $this;
-	}
-
 	public function setConsumerKey($key)
 	{
 		$this->key = $key;
+		return $this;
+	}
+
+	function setConfig($config)
+	{
+		$this->restClient->setConfig($config);
+		return $this;
+	}
+
+	function setResource($resource)
+	{
+		$this->resource = $resource;
+		$this->restClient->setResource($resource);
 		return $this;
 	}
 }

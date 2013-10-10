@@ -11,7 +11,7 @@ namespace Gji\Paginator;
 use Zend\Paginator\Adapter\AdapterInterface;
 use Zend\Json\Json;
 use Zend\Debug\Debug;
-use Gji\RestClient;
+use Gji\Http\RestClient;
 
 class RestAdapter implements AdapterInterface {
 	protected $client;
@@ -50,9 +50,19 @@ class RestAdapter implements AdapterInterface {
 			return $this->rowCount;
 		$this->client->setParameterGet($this->params);
 		$response = $this->client->sendGet();
+/*
+Debug::dump($response->getStatusCode());
+Debug::dump($response->getBody());exit;
+*/
 
 		if ($response->isOk()) {
+			try {
 			$collection = Json::decode($response->getBody());
+			} catch (\Zend\Json\Exception\RuntimeException $ex) {
+			Debug::dump($response->getBody());
+			echo $ex;
+			exit;
+			}
 			$this->rowCount = $collection->count;
 
 		} else {
