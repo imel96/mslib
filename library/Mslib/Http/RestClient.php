@@ -4,6 +4,7 @@ namespace Mslib\Http;
 
 use Zend\Http\Client;
 use Zend\Http\Request;
+use Mslib\Authentication;
 
 class RestClient extends Client
 {
@@ -12,7 +13,6 @@ class RestClient extends Client
     protected $rangeHeader;
     protected $headers;
     protected $resource;
-    protected $signingKey;
 
     public function setConfig($xconfig)
     {
@@ -47,12 +47,6 @@ class RestClient extends Client
         return $this;
     }
 
-    public function setSigningKey($key)
-    {
-        $this->signingKey = $key;
-        return $this;
-    }
-
     public function sendPost()
     {
         return $this->sendWithMethod('POST');
@@ -84,65 +78,26 @@ class RestClient extends Client
     {
         $request = $this->getRequest();
         $request->setUri($this->xconfig->uri . $this->resource);
-        if (isset($this->xconfig->auth))
+        if (isset($this->xconfig->auth)
+            && !empty($this->xconfig->auth->username))
             $this->setAuth($this->xconfig->auth->username,
                 $this->xconfig->auth->password);
-        if (isset($this->signingKey))
-            $authorization = $this->signRequest($request);
+
+        if (isset($this->xconfig->oauth)) {
+            $signer = new Authentication\OauthSignature(
+                $this->xconfig->oauth->consumerSecret,
+                $this->xconfig->oauth->tokenSecret,
+                'sha1');
+            $signer->setConsumerKey($this->xconfig->oauth->consumerKey)
+                ->setAccessToken('370773112-GmHxMAgYyLbNEtIKZeRNFsMKPR9EyMZeS9weJAEb');
+        }
         $headers = $request->getHeaders();
         if ($this->acceptHeader)
             $headers->addHeaderLine('Accept', $this->acceptHeader);
-        if (isset($this->signingKey))
-            $headers->addHeaderLine('Authorization', $authorization);
+        if (isset($this->xconfig->oauth))
+            $headers->addHeaderLine('Authorization',
+                $signer->sign($request));
         $request->setHeaders($headers);
-
-        if (isset($this->xconfig->auth) && !empty($this->xconfig->auth->username)) {
-            $this->setAuth($this->xconfig->auth->username, $this->xconfig->auth->password);
-        }
         return $request;
-    }
-
-    protected function signRequest($request)
-    {
-        $params = $this->collectParameters($request);
-        $base = $request->getMethod() . "&$params";
-//\Zend\Debug\Debug::dump($base);exit;
-/*
-        $base = $request->getMethod() . '&'
-            . rawurlencode($this->getUri()->toString()) . '&'
-            . rawurlencode($params);
-*/
-        return base64_encode(hash_hmac('sha1', $base,
-            $this->signingKey));
-    }
-
-    protected function collectParameters($request)
-    {
-        $ret = array();
-/*
-        $ret = array_merge($request->getQuery()->getArrayCopy(),
-            $request->getUri()->getQueryAsArray());
-        if ($request->getMethod() == Request::METHOD_POST)
-            $ret = array_merge($ret,
-                $request->getPost()->getArrayCopy());
-*/
-        $ret = array_merge($ret, array(
-            'oauth_signature_method' => 'HMAC-SHA1',
-            'oauth_timestamp' => time(),
-            'oauth_version' => '1.0'));
-        $params = $ret;
-/*
-        $params = array();
-        foreach ($ret as $key => $val)
-            $params[rawurlencode($key)] = rawurlencode($val);
-        ksort($params);
-*/
-        $ret = '';
-        foreach ($params as $key => $val)
-            if ($ret == '')
-                $ret = "$key=$val";
-            else
-                $ret .= "&$key=$val";
-        return $ret;
     }
 }

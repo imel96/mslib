@@ -16,11 +16,13 @@ class TokenAdapter extends Adapter\AbstractAdapter
     public function authenticate()
     {
         $algo = $this->config['api_provider']['gji']['cipher'];
+        $expiry = $this->config['api_provider']['gji']['token_expiry'];
         $blockCipher = BlockCipher::factory('mcrypt',
             array('algo' => $algo));
-        $blockCipher->setKey($this->key);
-        $start = microtime(true);
-        $result = $blockCipher->decrypt($this->identity);
+        $cipher = $blockCipher->getCipher();
+        $cipher->setKey($this->key);
+        $result = $cipher->decrypt(base64_decode($this->identity));
+
         if (!$result)
             return new Result(Result::FAILURE_CREDENTIAL_INVALID,
                 $this->identity, array());
@@ -34,7 +36,7 @@ class TokenAdapter extends Adapter\AbstractAdapter
         $dte = \DateTime::createFromFormat(\DateTime::ISO8601,
             $result->time);
         $diff = $now->diff($dte);
-        if ($diff->i > 10)
+        if ($diff->i > $expiry)
             return new Result(Result::FAILURE_CREDENTIAL_INVALID,
                 $this->identity, array());
         return new Result(Result::SUCCESS, $result->username, array());
