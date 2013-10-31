@@ -1,6 +1,6 @@
 <?php
 
-namespace Gji\Http;
+namespace Mslib\Http;
 
 use Zend\Http\Client;
 

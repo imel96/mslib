@@ -1,11 +1,10 @@
 <?php
 
 /*
- * copied from  http://svn.corp.local/svn/mms/trunk/library/Gji/Paginator/DoctrineAdapter.php
  * depends on doctrine1 and zend1
  * it's a bit quirky because this needs to work with mssql.
  */
-namespace Gji\Paginator;
+namespace Mslib\Paginator;
 
 class DoctrineAdapter_v1 implements \Zend_Paginator_Adapter_Interface
 {

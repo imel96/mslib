@@ -1,6 +1,6 @@
 <?php
 
-namespace Gji;
+namespace Mslib;
 
 use Zend\View\Model\ViewModel;
 use Zend\Mail;

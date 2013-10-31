@@ -1,6 +1,6 @@
 <?php
 
-namespace Gji\Mvc;
+namespace Mslib\Mvc;
 
 use Zend\Mvc\Controller\AbstractRestfulController;
 use Zend\Http\Response;

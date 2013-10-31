@@ -6,12 +6,12 @@
  * meta data.
  */
 
-namespace Gji\Paginator;
+namespace Mslib\Paginator;
 
 use Zend\Paginator\Adapter\AdapterInterface;
 use Zend\Json\Json;
 use Zend\Debug\Debug;
-use Gji\Http\RestClient;
+use Mslib\Http\RestClient;
 
 class RestAdapter implements AdapterInterface
 {

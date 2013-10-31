@@ -1,10 +1,6 @@
 <?php
 
-/*
- * copied from  http://svn.corp.local/svn/mms/trunk/library/Gji/Sort.php
- */
-
-namespace Gji;
+namespace Mslib;
 
 class Sort
 {

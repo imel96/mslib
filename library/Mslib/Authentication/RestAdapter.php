@@ -1,13 +1,13 @@
 <?php
 
-namespace Gji\Authentication;
+namespace Mslib\Authentication;
 
 use Zend\Authentication\Adapter;
 use Zend\Authentication\Result;
 use Zend\Json\Json;
 use Zend\Http\Response;
 use Zend\Debug\Debug;
-use Gji\Http;
+use Mslib\Http;
 
 class RestAdapter extends Adapter\AbstractAdapter
 {

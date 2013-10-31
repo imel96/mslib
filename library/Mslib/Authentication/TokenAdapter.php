@@ -1,6 +1,6 @@
 <?php
 
-namespace Gji\Authentication;
+namespace Mslib\Authentication;
 
 use Zend\Authentication\Adapter;
 use Zend\Authentication\Result;

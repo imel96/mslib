@@ -1,6 +1,6 @@
 <?php
 
-namespace Gji;
+namespace Mslib;
 
 final class Version
 {

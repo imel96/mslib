@@ -1,11 +1,7 @@
 <?php
 
-/*
- * copied from  http://svn.corp.local/svn/mms/trunk/library/Gji/Math.php
- */
-
-namespace Gji;
-use Gji\Sort;
+namespace Mslib;
+use Mslib\Sort;
 
 class Math
 {
