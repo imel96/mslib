@@ -15,9 +15,9 @@ class RestAdapter extends Adapter\AbstractAdapter
     protected $restClient;
     protected $resource;
 
-    public function __construct()
+    public function __construct(Http\RestClient $client)
     {
-        $this->restClient = new Http\RestClient;
+        $this->restClient = $client;
     }
 
     public function authenticate()

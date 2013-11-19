@@ -5,23 +5,25 @@ namespace Mslib\Authentication;
 use Zend\Authentication\Adapter;
 use Zend\Authentication\Result;
 use Zend\Json;
-use Zend\Crypt\BlockCipher;
+use Zend\Crypt;
 use Zend\Debug\Debug;
 
 class TokenAdapter extends Adapter\AbstractAdapter
 {
+    protected $cipher;
     protected $key;
     protected $config;
 
+    public function __construct(Crypt\Symmetric\SymmetricInterface $cipher)
+    {
+        $this->cipher = $cipher;
+    }
+
     public function authenticate()
     {
-        $algo = $this->config['api_provider']['gji']['cipher'];
         $expiry = $this->config['api_provider']['gji']['token_expiry'];
-        $blockCipher = BlockCipher::factory('mcrypt',
-            array('algo' => $algo));
-        $cipher = $blockCipher->getCipher();
-        $cipher->setKey($this->key);
-        $result = $cipher->decrypt(base64_decode($this->identity));
+        $this->cipher->setKey($this->key);
+        $result = $this->cipher->decrypt(base64_decode($this->identity));
 
         if (!$result)
             return new Result(Result::FAILURE_CREDENTIAL_INVALID,
