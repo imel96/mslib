@@ -37,9 +37,8 @@ class OauthSignature
         if ($port)
             $url .= ":$port";
         $url .= $uri->getPath();
-        $base = $request->getMethod() . '&'
-            . rawurlencode($url) . '&'
-            . rawurlencode($this->getSignatureParametersString($params));
+        $base = $this->getSignatureBaseString($request->getMethod(), $url,
+            $params);
         $params['oauth_signature'] =
             base64_encode(Hmac::compute($this->signingKey,
                 $this->hashAlgo, $base, Hmac::OUTPUT_BINARY));
@@ -56,6 +55,17 @@ class OauthSignature
     {
         $this->accessToken = $token;
         return $this;
+    }
+
+    // mimics oauth_get_sbs()
+    protected function getSignatureBaseString($httpMethod, $uri, $params)
+    {
+        ksort($params);
+        $ret = array();
+    $ret[] = $uri;
+        foreach ($params as $key => $val)
+            $ret[] = "$key=$val";
+        return "$httpMethod&" . rawurlencode(implode('&', $ret));
     }
 
     protected function collectParameters(Request $request)
@@ -81,15 +91,6 @@ class OauthSignature
         foreach ($ret as $key => $val)
             $params[rawurlencode($key)] = rawurlencode($val);
         return $params;
-    }
-
-    protected function getSignatureParametersString($params)
-    {
-        ksort($params);
-        $ret = array();
-        foreach ($params as $key => $val)
-            $ret[] = "$key=$val";
-        return implode('&', $ret);
     }
 
     protected function getHeaderString($params)
