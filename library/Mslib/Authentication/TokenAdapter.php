@@ -2,6 +2,7 @@
 
 namespace Mslib\Authentication;
 
+use DateTime;
 use Zend\Authentication\Adapter;
 use Zend\Authentication\Result;
 use Zend\Json;
@@ -13,15 +14,18 @@ class TokenAdapter extends Adapter\AbstractAdapter
     protected $cipher;
     protected $key;
     protected $config;
+    protected $currentTime;
 
-    public function __construct(Crypt\Symmetric\SymmetricInterface $cipher)
+    public function __construct(Crypt\Symmetric\SymmetricInterface $cipher,
+        DateTime $now)
     {
         $this->cipher = $cipher;
+        $this->currentTime = $now;
     }
 
     public function authenticate()
     {
-        $expiry = $this->config['api_provider']['gji']['token_expiry'];
+        $expiry = $this->config['token_expiry'];
         $this->cipher->setKey($this->key);
         $result = $this->cipher->decrypt(base64_decode($this->identity));
 
@@ -34,10 +38,8 @@ class TokenAdapter extends Adapter\AbstractAdapter
         return new Result(Result::FAILURE_UNCATEGORIZED,
             $this->identity, array());
         }
-        $now = new \DateTime;
-        $dte = \DateTime::createFromFormat(\DateTime::ISO8601,
-            $result->time);
-        $diff = $now->diff($dte);
+        $dte = DateTime::createFromFormat(DateTime::ISO8601, $result->time);
+        $diff = $this->currentTime->diff($dte);
         if ($diff->i > $expiry)
             return new Result(Result::FAILURE_CREDENTIAL_INVALID,
                 $this->identity, array());
