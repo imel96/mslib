@@ -6,14 +6,14 @@ use Zend\View;
 
 class DateAgo extends View\Helper\AbstractHelper
 {
-    public function __invoke($datetime)
+    public function __invoke(\DateTime $date)
     {
-        $now = new \DateTime;
-        $now->setTime(0, 0, 0);
-        $date = new \DateTime($datetime);
+        $today = clone $date;
+        $today->setTimestamp(time())
+            ->setTime(0, 0, 0);
         $tmp = clone $date;
         $tmp->setTime(0, 0, 0);
-        $diff = $now->diff($tmp);
+        $diff = $today->diff($tmp);
 
         switch ($diff->d) {
         case 0:

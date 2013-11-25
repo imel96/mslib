@@ -49,22 +49,27 @@ class RestClient extends Client
 
     public function sendPost()
     {
-        return $this->sendWithMethod('POST');
+        return $this->sendWithMethod(Request::METHOD_POST);
     }
 
     public function sendPut()
     {
-        return $this->sendWithMethod('PUT');
+        return $this->sendWithMethod(Request::METHOD_PUT);
     }
 
     public function sendDelete()
     {
-        return $this->sendWithMethod('DELETE');
+        return $this->sendWithMethod(Request::METHOD_DELETE);
     }
 
     public function sendGet()
     {
-        return $this->sendWithMethod('GET');
+        return $this->sendWithMethod(Request::METHOD_GET);
+    }
+
+    public function sendPatch()
+    {
+        return $this->sendWithMethod(Request::METHOD_PATCH);
     }
 
     public function sendWithMethod($method)
